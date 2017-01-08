@@ -1,6 +1,7 @@
 package com.fr1kin.asmhelper.types;
 
 import com.fr1kin.asmhelper.ASMHelper;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -38,34 +39,37 @@ public class ASMClass implements IASMType {
     /**
      * Create new instance of ASMMethod
      * @param name name of method
+     * @param isStatic if method is static
      * @param returnType methods return type
      * @param argumentTypes methods arguments
      * @return new instance of ASMMethod
      */
-    public ASMMethod childMethod(String name, Type returnType, Type... argumentTypes) {
-        return new ASMMethod(name, this, Type.getMethodType(returnType, argumentTypes));
+    public ASMMethod childMethod(String name, boolean isStatic, Type returnType, Type... argumentTypes) {
+        return new ASMMethod(name, this, isStatic, Type.getMethodType(returnType, argumentTypes));
     }
 
     /**
      * Creates new instance of ASMMethod
      * @param name name of method
+     * @param isStatic if method is static
      * @param descriptor method descriptor
      * @return new instance of ASMMethod
      */
-    public ASMMethod childMethod(String name, String descriptor) {
-        return new ASMMethod(name, this, Type.getMethodType(descriptor));
+    public ASMMethod childMethod(String name, boolean isStatic, String descriptor) {
+        return new ASMMethod(name, this, isStatic, Type.getMethodType(descriptor));
     }
 
     /**
      * Create new instance of ASMMethod
      * ONLY ACCEPTS THESE OBJECT TYPES: String, ASMClass, Class, Type
      * @param name name of method
+     * @param isStatic if method is static
      * @param returnType methods return type
      * @param argumentTypes methods arguments
      * @return new instance of ASMMethod
      */
-    public ASMMethod childMethod(String name, Object returnType, Object... argumentTypes) {
-        return childMethod(name, ASMHelper.generateMethodDescriptor(returnType, argumentTypes));
+    public ASMMethod childMethod(String name, boolean isStatic, Object returnType, Object... argumentTypes) {
+        return childMethod(name, isStatic, ASMHelper.generateMethodDescriptor(returnType, argumentTypes));
     }
 
     /**
@@ -74,27 +78,29 @@ public class ASMClass implements IASMType {
      * @return new instance of ASMMethod
      */
     public ASMMethod childMethod(MethodNode methodNode) {
-        return childMethod(methodNode.name, methodNode.desc);
+        return childMethod(methodNode.name, (methodNode.access & Opcodes.ACC_STATIC) != 0, methodNode.desc);
     }
 
     /**
      * Creates new instance of ASMField
      * @param name name of field
+     * @param isStatic if field is static
      * @param type type descriptor of field
      * @return new instance of ASMField
      */
-    public ASMField childField(String name, Type type) {
-        return new ASMField(name, this, type);
+    public ASMField childField(String name, boolean isStatic, Type type) {
+        return new ASMField(name, this, isStatic, type);
     }
 
     /**
      * Creates new instance of ASMField
      * @param name name of field
+     * @param isStatic if field is static
      * @param typeDescriptor type descriptor of field
      * @return new instance of ASMField
      */
-    public ASMField childField(String name, String typeDescriptor) {
-        return childField(name, Type.getObjectType(typeDescriptor));
+    public ASMField childField(String name, boolean isStatic, String typeDescriptor) {
+        return childField(name, isStatic, Type.getObjectType(typeDescriptor));
     }
 
     /**
@@ -103,7 +109,7 @@ public class ASMClass implements IASMType {
      * @return new instance of ASMField
      */
     public ASMField childField(FieldNode fieldNode) {
-        return childField(fieldNode.name, fieldNode.desc);
+        return childField(fieldNode.name, (fieldNode.access & Opcodes.ACC_STATIC) != 0,fieldNode.desc);
     }
 
     @Override

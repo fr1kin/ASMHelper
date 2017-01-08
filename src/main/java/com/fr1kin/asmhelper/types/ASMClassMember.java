@@ -8,15 +8,17 @@ package com.fr1kin.asmhelper.types;
 public class ASMClassMember implements IASMType {
     private final String name;
     private final ASMClass parent;
+    private final boolean isStatic;
 
     /**
      * Sets this classes parent
      * @param name name of the derived object
      * @param parent parent class to what this class is representing
      */
-    public ASMClassMember(String name, ASMClass parent) {
+    public ASMClassMember(String name, ASMClass parent, boolean isStatic) {
         this.name = name;
         this.parent = parent;
+        this.isStatic = isStatic;
     }
 
     /**
@@ -33,6 +35,14 @@ public class ASMClassMember implements IASMType {
      */
     public ASMClass getParentClass() {
         return parent;
+    }
+
+    /**
+     * Check if the member is static
+     * @return if member is static to the class or not
+     */
+    public boolean isStatic() {
+        return isStatic;
     }
 
     @Override

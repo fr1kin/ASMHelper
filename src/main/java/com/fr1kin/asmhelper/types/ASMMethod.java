@@ -1,7 +1,13 @@
 package com.fr1kin.asmhelper.types;
 
 import com.fr1kin.asmhelper.ASMHelper;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
+
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 /**
  * Created on 1/4/2017 by fr1kin
@@ -16,8 +22,8 @@ public class ASMMethod extends ASMClassMember {
      * @param parent parent class to what this class is representing
      * @param descriptor method descriptor
      */
-    public ASMMethod(String name, ASMClass parent, Type descriptor) {
-        super(name, parent);
+    public ASMMethod(String name, ASMClass parent,  boolean isStatic, Type descriptor) {
+        super(name, parent, isStatic);
         this.descriptor = descriptor;
     }
 
@@ -51,6 +57,23 @@ public class ASMMethod extends ASMClassMember {
      */
     public Type[] getArguments() {
         return descriptor.getArgumentTypes();
+    }
+
+    public void pushInvokeMethod(InsnList insnList, int opcode) {
+        insnList.insert(new MethodInsnNode(opcode,
+                getParentClass().getDescriptor(),
+                getName(),
+                getDescriptor(),
+                false
+        ));
+    }
+
+    public int pushArguments(InsnList insnList, int startingIndex) {
+        for(Type type : getArguments()) {
+            int loadOpcode = type.getOpcode(type.getSort() != Type.ARRAY ? Opcodes.ILOAD : Opcodes.IALOAD);
+            insnList.insert(new VarInsnNode(loadOpcode, startingIndex++));
+        }
+        return startingIndex;
     }
 
     @Override

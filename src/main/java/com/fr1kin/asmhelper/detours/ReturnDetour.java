@@ -14,12 +14,13 @@ import org.objectweb.asm.tree.MethodNode;
 public class ReturnDetour extends TopDetour {
     public ReturnDetour(ASMMethod method, ASMMethod hookMethod) throws IllegalArgumentException {
         super(method, hookMethod);
-        insertBefore = true;
+        setInsertedBefore(true);
     }
 
     @Override
-    protected AbstractInsnNode findInsertNode(MethodNode methodNode, ASMMethod method) {
-        Type returnType = method.getReturnType();
+    protected AbstractInsnNode getInsertNode(MethodNode methodNode) {
+        Type returnType = getMethod().getReturnType();
+        // gets the proper opcode for the return type
         int returnTypeOpcode = returnType.getOpcode(Opcodes.IRETURN);
 
         AbstractInsnNode next = methodNode.instructions.getFirst();
