@@ -54,7 +54,7 @@ public class Verifier {
             throw new IncompatibleMethodException("hook does not contain all arguments that the target method has");
     }
 
-    public static void checkHookReturnType(ASMMethod hookMethod, Type type) {
+    public static void checkHookReturnType(ASMMethod hookMethod, Type type) throws IncompatibleMethodException {
         if(!isReturnTypesEqualTo(hookMethod, type))
             throw new IncompatibleMethodException(
                     "hook has bad return type '%s' (should be '%s')",
@@ -63,7 +63,7 @@ public class Verifier {
             );
     }
 
-    public static void checkHookIsNonStatic(ASMMethod hookMethod) {
+    public static void checkHookIsNonStatic(ASMMethod hookMethod) throws IncompatibleMethodException {
         if(!hookMethod.isStatic())
             throw new IncompatibleMethodException("non-static hook is not supported");
     }
