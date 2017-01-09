@@ -59,23 +59,6 @@ public class ASMMethod extends ASMClassMember {
         return descriptor.getArgumentTypes();
     }
 
-    public void pushInvokeMethod(InsnList insnList, int opcode) {
-        insnList.insert(new MethodInsnNode(opcode,
-                getParentClass().getDescriptor(),
-                getName(),
-                getDescriptor(),
-                false
-        ));
-    }
-
-    public int pushArguments(InsnList insnList, int startingIndex) {
-        for(Type type : getArguments()) {
-            int loadOpcode = type.getOpcode(type.getSort() != Type.ARRAY ? Opcodes.ILOAD : Opcodes.IALOAD);
-            insnList.insert(new VarInsnNode(loadOpcode, startingIndex++));
-        }
-        return startingIndex;
-    }
-
     @Override
     public String toString() {
         return super.toString() + getDescriptor();

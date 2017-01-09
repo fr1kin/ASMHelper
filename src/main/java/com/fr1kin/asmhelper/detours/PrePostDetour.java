@@ -1,6 +1,6 @@
 package com.fr1kin.asmhelper.detours;
 
-import com.fr1kin.asmhelper.exceptions.DetourException;
+import com.fr1kin.asmhelper.detours.locator.ILocator;
 import com.fr1kin.asmhelper.exceptions.IncompatibleMethodException;
 import com.fr1kin.asmhelper.types.ASMMethod;
 import org.objectweb.asm.Type;
@@ -13,91 +13,57 @@ import static org.objectweb.asm.Opcodes.*;
  *
  * Detours
  */
-public abstract class PrePostDetour extends Detour {
-    protected boolean insertedBeforePre = true;
-    protected boolean insertedBeforePost = false;
+public class PrePostDetour extends Detour {
+    private ILocator preLocator = null;
+    private ILocator postLocator = null;
 
-    public PrePostDetour(ASMMethod method, ASMMethod hookMethod, boolean insertedBeforePre, boolean insertedBeforePost)
-            throws IllegalArgumentException {
+    public PrePostDetour(ASMMethod method, ASMMethod hookMethod) throws IllegalArgumentException {
         super(method, hookMethod);
-        this.insertedBeforePre = insertedBeforePre;
-        this.insertedBeforePost = insertedBeforePost;
     }
 
-    /**
-     * Gets the pre node
-     * @param methodNode method node to search
-     * @return node to inject code at
-     */
-    protected AbstractInsnNode getPreInsertNode(MethodNode methodNode) {
-        return methodNode.instructions.getFirst();
+    public ILocator getPreLocator() {
+        return preLocator;
     }
 
-    /**
-     * Gets the post node
-     * @param methodNode method node to search
-     * @return node to inject code at
-     */
-    protected abstract AbstractInsnNode getPostInsertNode(MethodNode methodNode);
+    public ILocator getPostLocator() {
+        return postLocator;
+    }
 
-    protected InsnList generateCallbackInsc(boolean preMethod) {
-        InsnList insnList = new InsnList();
+    public PrePostDetour setLocators(ILocator preLocator, ILocator postLocator) {
+        this.preLocator = preLocator;
+        this.postLocator = postLocator;
+        return this;
+    }
 
-        // pre: push 0 for the first instruction list (PRE_METHOD)
-        // post: push 1 for the first instruction list (POST_METHOD)
-        insnList.insert(new InsnNode(preMethod ? ICONST_0 : ICONST_1));
+    protected InsnList generateInsnList(int opcode) {
+        return InsnBuilder.newInstance()
+                .push(new InsnNode(opcode))
+                .pushArguments(getTargetMethod())
+                .pushInvoke(INVOKESTATIC, getHookMethod())
+                .getInstructions();
+    }
 
-        int i = 0;
-        // push THIS if not static
-        if(!getMethod().isStatic()) insnList.insert(new VarInsnNode(ALOAD, i++));
-        // push all of the hooked methods arguments
-        getMethod().pushArguments(insnList, i);
-        // push invoke method that calls the hook
-        getHookMethod().pushInvokeMethod(insnList, INVOKESTATIC);
+    protected void insert(MethodNode methodNode, InsnList insnListPre, InsnList insnListPost) {
+        AbstractInsnNode preNode = getPreLocator().apply(methodNode, getTargetMethod(), getHookMethod());
+        AbstractInsnNode postNode = getPostLocator().apply(methodNode, getTargetMethod(), getHookMethod());
 
-        return insnList;
+        Verifier.checkIfNullNode("preNode", preNode);
+        Verifier.checkIfNullNode("postNode", postNode);
+
+        insertCode(methodNode, preNode, insnListPre, getPreLocator().isInsertedBefore());
+        insertCode(methodNode, postNode, insnListPost, getPostLocator().isInsertedBefore());
     }
 
     @Override
     protected boolean validate() throws IncompatibleMethodException {
-        if(!checkArguments(getHookMethod(), getMethod()))
-            throw new IncompatibleMethodException(
-                    getClass(),
-                    "hook '%s' has missing arguments from '%s'",
-                    getHookMethod().toString(),
-                    getMethod().toString()
-            );
-        if(!getHookMethod().getReturnType().equals(Type.BOOLEAN_TYPE))
-            throw new IncompatibleMethodException(
-                    getClass(),
-                    "hook '%s' has bad return type '%s' (should be a boolean type)",
-                    getHookMethod().toString(),
-                    getHookMethod().getReturnTypeDescriptor()
-            );
-        if(getHookMethod().isStatic())
-            throw new IncompatibleMethodException(
-                    getClass(),
-                    "non-static hook '%s' is not supported",
-                    getHookMethod().toString()
-            );
+        Verifier.checkHookContainsAllArguments(getHookMethod(), getTargetMethod());
+        Verifier.checkHookReturnType(getHookMethod(), Type.VOID_TYPE);
+        Verifier.checkHookIsNonStatic(getHookMethod());
         return true;
     }
 
     @Override
     protected void inject(MethodNode methodNode) throws RuntimeException {
-        // get instructions for calling hooks
-        InsnList insnListPre = generateCallbackInsc(true);
-        InsnList insnListPost = generateCallbackInsc(false);
-
-        AbstractInsnNode preNode = getPreInsertNode(methodNode);
-        AbstractInsnNode postNode = getPostInsertNode(methodNode);
-
-        if (preNode == null)
-            throw new DetourException(getClass(), "failed to find PRE injection node for method '%s'", getMethod().toString());
-        if (postNode == null)
-            throw new DetourException(getClass(), "failed to find POST injection node for method '%s'", getMethod().toString());
-
-        insertCode(methodNode, preNode, insnListPre, insertedBeforePre);
-        insertCode(methodNode, postNode, insnListPost, insertedBeforePost);
+        insert(methodNode, generateInsnList(ICONST_0), generateInsnList(ICONST_1));
     }
 }

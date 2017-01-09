@@ -5,7 +5,7 @@ package com.fr1kin.asmhelper.types;
  *
  * For any types that are derived under a class (fields, methods, anything else)
  */
-public class ASMClassMember implements IASMType {
+public abstract class ASMClassMember implements IASMType {
     private final String name;
     private final ASMClass parent;
     private final boolean isStatic;
@@ -36,6 +36,8 @@ public class ASMClassMember implements IASMType {
     public ASMClass getParentClass() {
         return parent;
     }
+
+    public abstract String getDescriptor();
 
     /**
      * Check if the member is static

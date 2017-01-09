@@ -23,7 +23,7 @@ public class ASMField extends ASMClassMember {
      * Gets the type descriptor
      * @return type descriptor
      */
-    public String getTypeDescriptor() {
+    public String getDescriptor() {
         return type.getDescriptor();
     }
 
@@ -35,29 +35,15 @@ public class ASMField extends ASMClassMember {
         return type;
     }
 
-    /**
-     * Creates a node that will invoke this field
-     * @param opcode invoke opcode
-     * @return new instance of FieldInsnNode
-     */
-    public FieldInsnNode getInvokeFieldNode(int opcode) {
-        return new FieldInsnNode(
-                opcode,
-                getParentClass().getDescriptor(),
-                getName(),
-                getTypeDescriptor()
-        );
-    }
-
     @Override
     public String toString() {
-        return getTypeDescriptor() + " " + super.toString();
+        return getDescriptor() + " " + super.toString();
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof ASMField) {
-            return this.getTypeDescriptor().equals(((ASMField) obj).getTypeDescriptor()) && super.equals(obj);
+            return this.getDescriptor().equals(((ASMField) obj).getDescriptor()) && super.equals(obj);
         } else return false;
     }
 }

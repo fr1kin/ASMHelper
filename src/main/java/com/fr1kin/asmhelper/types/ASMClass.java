@@ -1,10 +1,14 @@
 package com.fr1kin.asmhelper.types;
 
 import com.fr1kin.asmhelper.ASMHelper;
+import com.google.common.collect.Maps;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
+
+import java.util.Map;
 
 /**
  * Created on 1/4/2017 by fr1kin
@@ -16,7 +20,7 @@ public class ASMClass implements IASMType {
      * Constructs by type
      * @param type type
      */
-    public ASMClass(Type type) {
+    protected ASMClass(Type type) {
         this.descriptor = type;
     }
 

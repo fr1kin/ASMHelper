@@ -1,4 +1,4 @@
-package com.fr1kin.asmhelper.detours;
+package com.fr1kin.asmhelper.detours.locator;
 
 import com.fr1kin.asmhelper.types.ASMMethod;
 import org.objectweb.asm.Opcodes;
@@ -7,19 +7,23 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 /**
- * Created on 1/6/2017 by fr1kin
- *
- * Places a detour before the return statement
+ * Created on 1/8/2017 by fr1kin
  */
-public class ReturnDetour extends TopDetour {
-    public ReturnDetour(ASMMethod method, ASMMethod hookMethod) throws IllegalArgumentException {
-        super(method, hookMethod);
-        setInsertedBefore(true);
+public class Locators {
+    /**
+     * Locates the first node
+     */
+    @InsertedBefore(true)
+    public static AbstractInsnNode firstNode(MethodNode methodNode, ASMMethod hookedMethod, ASMMethod hookMethod) {
+        return methodNode.instructions.getFirst();
     }
 
-    @Override
-    protected AbstractInsnNode getInsertNode(MethodNode methodNode) {
-        Type returnType = getMethod().getReturnType();
+    /**
+     * Locates the return node
+     */
+    @InsertedBefore(true)
+    public static AbstractInsnNode returnNode(MethodNode methodNode, ASMMethod hookedMethod, ASMMethod hookMethod) {
+        Type returnType = hookedMethod.getReturnType();
         // gets the proper opcode for the return type
         int returnTypeOpcode = returnType.getOpcode(Opcodes.IRETURN);
 
@@ -32,4 +36,6 @@ public class ReturnDetour extends TopDetour {
         }
         return null;
     }
+
+
 }
