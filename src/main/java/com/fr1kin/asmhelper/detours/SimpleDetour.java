@@ -12,8 +12,6 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * Created on 1/5/2017 by fr1kin
- *
- * Basic detour
  */
 public class SimpleDetour extends Detour {
     private ILocator locator = null;

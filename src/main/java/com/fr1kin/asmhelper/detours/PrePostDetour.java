@@ -12,8 +12,6 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * Created on 1/7/2017 by fr1kin
- *
- * Detours
  */
 public class PrePostDetour extends Detour {
     private ILocator preLocator = null;

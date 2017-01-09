@@ -11,9 +11,6 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * Created on 1/7/2017 by fr1kin
- *
- * Inserts a post and pre detour that can be cancelled
- * NOTE: One has to specify the post node manually
  */
 public abstract class CancellablePrePostDetour extends PrePostDetour {
     public CancellablePrePostDetour(ASMMethod method, ASMMethod hookMethod)
