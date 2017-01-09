@@ -1,4 +1,4 @@
-package com.fr1kin.asmhelper.detours.locator;
+package com.fr1kin.asmhelper.utils.locator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

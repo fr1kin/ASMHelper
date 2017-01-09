@@ -1,4 +1,4 @@
-package com.fr1kin.asmhelper.detours;
+package com.fr1kin.asmhelper.utils;
 
 import com.fr1kin.asmhelper.exceptions.IncompatibleMethodException;
 import com.fr1kin.asmhelper.exceptions.NullNodeException;

@@ -1,6 +1,6 @@
 package com.fr1kin.asmhelper.detours;
 
-import com.fr1kin.asmhelper.detours.locator.Locators;
+import com.fr1kin.asmhelper.utils.locator.Locators;
 
 /**
  * Created on 1/8/2017 by fr1kin

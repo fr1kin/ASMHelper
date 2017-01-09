@@ -2,6 +2,8 @@ package com.fr1kin.asmhelper.detours;
 
 import com.fr1kin.asmhelper.exceptions.IncompatibleMethodException;
 import com.fr1kin.asmhelper.types.ASMMethod;
+import com.fr1kin.asmhelper.utils.InsnBuilder;
+import com.fr1kin.asmhelper.utils.Verifier;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 

@@ -1,4 +1,4 @@
-package com.fr1kin.asmhelper.detours.locator;
+package com.fr1kin.asmhelper.utils.locator;
 
 import com.fr1kin.asmhelper.types.ASMMethod;
 import org.objectweb.asm.Opcodes;

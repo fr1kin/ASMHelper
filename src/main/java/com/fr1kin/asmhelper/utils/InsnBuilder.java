@@ -1,4 +1,4 @@
-package com.fr1kin.asmhelper.detours;
+package com.fr1kin.asmhelper.utils;
 
 import com.fr1kin.asmhelper.types.ASMField;
 import com.fr1kin.asmhelper.types.ASMMethod;
