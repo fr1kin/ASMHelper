@@ -34,10 +34,7 @@ public class Verifier {
     }
 
     protected static boolean containsAllArguments(ASMMethod hookMethod, Type... hookedMethodsArgs) {
-        // if hook is non-static then remove first argument from descriptor (the this pointer)
-        int pos;
-        Type[] hookArgs = hookMethod.getArguments();
-        return containsAllArguments(Arrays.copyOfRange(hookArgs, pos = hookMethod.isStatic() ? 0 : 1, hookArgs.length - pos), hookedMethodsArgs);
+        return containsAllArguments(hookMethod.getArguments(), hookedMethodsArgs);
     }
 
     protected static boolean containsAllArguments(ASMMethod hookMethod, ASMMethod hookedMethod) {
