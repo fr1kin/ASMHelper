@@ -3,6 +3,7 @@ package com.fr1kin.asmhelper;
 import com.fr1kin.asmhelper.exceptions.FailedToMatchPatternException;
 import com.fr1kin.asmhelper.exceptions.NullNodeException;
 import com.fr1kin.asmhelper.types.ASMClass;
+import com.fr1kin.asmhelper.utils.Verifier;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -262,19 +263,47 @@ public class ASMHelper {
         return Type.getObjectType(className.replace('.', '/'));
     }
 
+    /**
+     * Checks if the opcode is between 0-199 (all the valid opcodes)
+     * @param opcode opcode
+     * @return true if the opcode is within that range
+     */
     public static boolean isValidOpcode(int opcode) {
         return opcode >= Opcodes.NOP && opcode <= Opcodes.IFNONNULL;
     }
 
+    /**
+     * Inserts instruction list into method at targeted point
+     * @param methodNode method node
+     * @param node target node to inject at
+     * @param list instruction list to inject
+     * @throws NullNodeException if the target node is null
+     */
     public static void insertIntoMethodAt(MethodNode methodNode, AbstractInsnNode node, InsnList list) throws NullNodeException {
         methodNode.instructions.insert(node, list);
     }
 
+    /**
+     * Inserts instruction list into method before targeted point
+     * @param methodNode method node
+     * @param node target node to inject at
+     * @param list instruction list to inject
+     * @throws NullNodeException if the target node is null
+     */
     public static void insertIntoMethodBefore(MethodNode methodNode, AbstractInsnNode node, InsnList list) throws NullNodeException {
         methodNode.instructions.insertBefore(node, list);
     }
 
+    /**
+     * Inserts instruction list into method before/af the targeted point
+     * @param methodNode method node
+     * @param node target node to inject at
+     * @param list instruction list to inject
+     * @param before if instruction should be injected before the targeted point
+     * @throws NullNodeException if the target node is null
+     */
     public static void insertIntoMethod(MethodNode methodNode, AbstractInsnNode node, InsnList list, boolean before) throws NullNodeException {
+        Verifier.checkIfNullNode(node);
         if(before) insertIntoMethodBefore(methodNode, node, list);
         else insertIntoMethodAt(methodNode, node, list);
     }
