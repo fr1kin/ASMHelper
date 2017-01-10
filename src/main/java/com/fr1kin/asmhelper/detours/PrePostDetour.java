@@ -18,7 +18,7 @@ public class PrePostDetour extends Detour {
     private final ILocator preLocator;
     private final ILocator postLocator;
 
-    public PrePostDetour(ASMMethod method, ASMMethod hookMethod, ILocator preLocator, ILocator postLocator) throws IllegalArgumentException {
+    protected PrePostDetour(ASMMethod method, ASMMethod hookMethod, ILocator preLocator, ILocator postLocator) throws IllegalArgumentException {
         super(method, hookMethod);
         this.preLocator = preLocator;
         this.postLocator = postLocator;

@@ -14,7 +14,7 @@ import static org.objectweb.asm.Opcodes.*;
  * Created on 1/7/2017 by fr1kin
  */
 public class CancellablePrePostDetour extends PrePostDetour {
-    public CancellablePrePostDetour(ASMMethod method, ASMMethod hookMethod, ILocator preLocator, ILocator postLocator)
+    protected CancellablePrePostDetour(ASMMethod method, ASMMethod hookMethod, ILocator preLocator, ILocator postLocator)
             throws IllegalArgumentException {
         super(method, hookMethod, preLocator, postLocator);
     }

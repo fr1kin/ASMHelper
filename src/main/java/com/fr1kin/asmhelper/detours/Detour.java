@@ -15,7 +15,7 @@ public abstract class Detour {
     private final ASMMethod targetMethod;
     private final ASMMethod hookMethod;
 
-    public Detour(ASMMethod targetMethod, ASMMethod hookMethod)
+    protected Detour(ASMMethod targetMethod, ASMMethod hookMethod)
             throws IllegalArgumentException {
         if(targetMethod.getParentClass() == null) throw new IllegalArgumentException(String.format("targetMethod '%s' has no parent class defined", targetMethod.toString()));
         this.targetMethod = targetMethod;
