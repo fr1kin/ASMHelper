@@ -53,10 +53,10 @@ public abstract class Detour {
      * @param classNode ClassNode to attempt code injection on
      * @return true if the class was patched successfully with no exceptions thrown
      *          false if the class node did not match with the hooked methods class name
-     * @throws DetourException if targetMethod is not found
+     * @throws RuntimeException if targetMethod is not found
      */
     public boolean apply(ASMClass parentClass, ClassNode classNode)
-            throws DetourException {
+            throws RuntimeException {
         if(parentClass.equals(getParentClass())) {
             MethodNode methodNode = findMethod(parentClass, classNode);
             Verifier.checkHookIsNonStatic(getHookMethod()); //TODO: support non-static hooks, cba atm
@@ -76,5 +76,5 @@ public abstract class Detour {
 
     protected abstract boolean validate() throws IncompatibleMethodException;
 
-    protected abstract void inject(MethodNode methodNode) throws DetourException;
+    protected abstract void inject(MethodNode methodNode) throws RuntimeException;
 }
