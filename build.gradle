@@ -1,0 +1,25 @@
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+group "com.fr1kin.asmhelper"
+version = "1.0"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile "org.ow2.asm:asm-debug-all:5.0.3"
+    compile "com.google.guava:guava:19.0"
+}
