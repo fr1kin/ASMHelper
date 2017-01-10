@@ -4,6 +4,7 @@ import com.fr1kin.asmhelper.exceptions.IncompatibleMethodException;
 import com.fr1kin.asmhelper.types.ASMMethod;
 import com.fr1kin.asmhelper.utils.InsnBuilder;
 import com.fr1kin.asmhelper.utils.Verifier;
+import com.fr1kin.asmhelper.utils.locator.ILocator;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
@@ -12,17 +13,17 @@ import static org.objectweb.asm.Opcodes.*;
 /**
  * Created on 1/7/2017 by fr1kin
  */
-public abstract class CancellablePrePostDetour extends PrePostDetour {
-    public CancellablePrePostDetour(ASMMethod method, ASMMethod hookMethod)
+public class CancellablePrePostDetour extends PrePostDetour {
+    public CancellablePrePostDetour(ASMMethod method, ASMMethod hookMethod, ILocator preLocator, ILocator postLocator)
             throws IllegalArgumentException {
-        super(method, hookMethod);
+        super(method, hookMethod, preLocator, postLocator);
     }
 
     @Override
     protected boolean validate() throws IncompatibleMethodException {
+        Verifier.checkIfArgumentPresent(getHookMethod(), 0, Type.INT_TYPE);
         Verifier.checkHookContainsAllArguments(getHookMethod(), getTargetMethod());
         Verifier.checkHookReturnType(getHookMethod(), Type.BOOLEAN_TYPE);
-        Verifier.checkHookIsNonStatic(getHookMethod());
         return true;
     }
 
@@ -33,11 +34,11 @@ public abstract class CancellablePrePostDetour extends PrePostDetour {
 
         insert(
                 methodNode,
-                InsnBuilder.newInstance(generateInsnList(ICONST_0))
+                InsnBuilder.newInstance(generatePushHookCall(ICONST_0))
                         .push(new JumpInsnNode(IFEQ, jumpTo))
                         .getInstructions(),
-                InsnBuilder.newInstance(generateInsnList(ICONST_1))
-                        .push(new InsnNode(POP))
+                InsnBuilder.newInstance(generatePushHookCall(ICONST_1))
+                        .pop()
                         .push(jumpTo)
                         .getInstructions()
         );

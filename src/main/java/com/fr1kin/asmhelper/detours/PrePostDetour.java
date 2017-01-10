@@ -1,5 +1,6 @@
 package com.fr1kin.asmhelper.detours;
 
+import com.fr1kin.asmhelper.ASMHelper;
 import com.fr1kin.asmhelper.utils.locator.ILocator;
 import com.fr1kin.asmhelper.exceptions.IncompatibleMethodException;
 import com.fr1kin.asmhelper.types.ASMMethod;
@@ -14,28 +15,24 @@ import static org.objectweb.asm.Opcodes.*;
  * Created on 1/7/2017 by fr1kin
  */
 public class PrePostDetour extends Detour {
-    private ILocator preLocator = null;
-    private ILocator postLocator = null;
+    private final ILocator preLocator;
+    private final ILocator postLocator;
 
-    public PrePostDetour(ASMMethod method, ASMMethod hookMethod) throws IllegalArgumentException {
+    public PrePostDetour(ASMMethod method, ASMMethod hookMethod, ILocator preLocator, ILocator postLocator) throws IllegalArgumentException {
         super(method, hookMethod);
+        this.preLocator = preLocator;
+        this.postLocator = postLocator;
     }
 
-    public ILocator getPreLocator() {
+    protected ILocator getPreLocator() {
         return preLocator;
     }
 
-    public ILocator getPostLocator() {
+    protected ILocator getPostLocator() {
         return postLocator;
     }
 
-    public PrePostDetour setLocators(ILocator preLocator, ILocator postLocator) {
-        this.preLocator = preLocator;
-        this.postLocator = postLocator;
-        return this;
-    }
-
-    protected InsnList generateInsnList(int opcode) {
+    protected InsnList generatePushHookCall(int opcode) {
         return InsnBuilder.newInstance()
                 .push(new InsnNode(opcode))
                 .pushArguments(getTargetMethod())
@@ -44,26 +41,30 @@ public class PrePostDetour extends Detour {
     }
 
     protected void insert(MethodNode methodNode, InsnList insnListPre, InsnList insnListPost) {
-        AbstractInsnNode preNode = getPreLocator().apply(methodNode, getTargetMethod(), getHookMethod());
-        AbstractInsnNode postNode = getPostLocator().apply(methodNode, getTargetMethod(), getHookMethod());
-
-        Verifier.checkIfNullNode("preNode", preNode);
-        Verifier.checkIfNullNode("postNode", postNode);
-
-        insertCode(methodNode, preNode, insnListPre, getPreLocator().isInsertedBefore());
-        insertCode(methodNode, postNode, insnListPost, getPostLocator().isInsertedBefore());
+        ASMHelper.insertIntoMethod(
+                methodNode,
+                getPreLocator().apply(methodNode, getTargetMethod(), getHookMethod()),
+                insnListPre,
+                getPreLocator().isInsertedBefore()
+        );
+        ASMHelper.insertIntoMethod(
+                methodNode,
+                getPostLocator().apply(methodNode, getTargetMethod(), getHookMethod()),
+                insnListPost,
+                getPostLocator().isInsertedBefore()
+        );
     }
 
     @Override
     protected boolean validate() throws IncompatibleMethodException {
+        Verifier.checkIfArgumentPresent(getHookMethod(), 0, Type.INT_TYPE);
         Verifier.checkHookContainsAllArguments(getHookMethod(), getTargetMethod());
         Verifier.checkHookReturnType(getHookMethod(), Type.VOID_TYPE);
-        Verifier.checkHookIsNonStatic(getHookMethod());
         return true;
     }
 
     @Override
     protected void inject(MethodNode methodNode) throws RuntimeException {
-        insert(methodNode, generateInsnList(ICONST_0), generateInsnList(ICONST_1));
+        insert(methodNode, generatePushHookCall(ICONST_0), generatePushHookCall(ICONST_1));
     }
 }

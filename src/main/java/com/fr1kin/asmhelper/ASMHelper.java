@@ -1,9 +1,16 @@
 package com.fr1kin.asmhelper;
 
 import com.fr1kin.asmhelper.exceptions.FailedToMatchPatternException;
+import com.fr1kin.asmhelper.exceptions.NullNodeException;
 import com.fr1kin.asmhelper.types.ASMClass;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.MethodNode;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Created on 1/4/2017 by fr1kin
@@ -12,9 +19,48 @@ public class ASMHelper {
     public static final char MASK_PARSE     = 'x';
     public static final char MASK_IGNORE    = '?';
 
+    public static final int PRE             = 0;
+    public static final int POST            = 1;
+
     public enum ReturnNodePos {
         TOP,
         BOTTOM
+    }
+
+    /**
+     * Parses a node
+     * @param initialNode node to start at
+     * @param nextFunction next node function
+     * @param predicateFunction check node function
+     * @return null if no node found, otherwise the targeted node
+     */
+    public static AbstractInsnNode parseNode(AbstractInsnNode initialNode, Function<AbstractInsnNode, AbstractInsnNode> nextFunction, Predicate<AbstractInsnNode> predicateFunction) {
+        AbstractInsnNode n = initialNode;
+        while(n != null) {
+            if(predicateFunction.test(n)) return n;
+            n = nextFunction.apply(n);
+        }
+        return null;
+    }
+
+    /**
+     * Parses a node from first to last
+     * @param startingNode node to start at
+     * @param predicateFunction check node function
+     * @return null if no node found, otherwise the targeted node
+     */
+    public static AbstractInsnNode parseNextNode(AbstractInsnNode startingNode, Predicate<AbstractInsnNode> predicateFunction) {
+        return parseNode(startingNode, AbstractInsnNode::getNext, predicateFunction);
+    }
+
+    /**
+     * Parses a node from last to first
+     * @param lastNode node to start at
+     * @param predicateFunction check node function
+     * @return null if no node found, otherwise the targeted node
+     */
+    public static AbstractInsnNode parsePreviousNode(AbstractInsnNode lastNode, Predicate<AbstractInsnNode> predicateFunction) {
+        return parseNode(lastNode, AbstractInsnNode::getPrevious, predicateFunction);
     }
 
     /**
@@ -214,5 +260,22 @@ public class ASMHelper {
      */
     public static Type getInternalClassType(String className) {
         return Type.getObjectType(className.replace('.', '/'));
+    }
+
+    public static boolean isValidOpcode(int opcode) {
+        return opcode >= Opcodes.NOP && opcode <= Opcodes.IFNONNULL;
+    }
+
+    public static void insertIntoMethodAt(MethodNode methodNode, AbstractInsnNode node, InsnList list) throws NullNodeException {
+        methodNode.instructions.insert(node, list);
+    }
+
+    public static void insertIntoMethodBefore(MethodNode methodNode, AbstractInsnNode node, InsnList list) throws NullNodeException {
+        methodNode.instructions.insertBefore(node, list);
+    }
+
+    public static void insertIntoMethod(MethodNode methodNode, AbstractInsnNode node, InsnList list, boolean before) throws NullNodeException {
+        if(before) insertIntoMethodBefore(methodNode, node, list);
+        else insertIntoMethodAt(methodNode, node, list);
     }
 }

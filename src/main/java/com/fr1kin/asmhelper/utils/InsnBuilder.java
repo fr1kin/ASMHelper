@@ -1,10 +1,13 @@
 package com.fr1kin.asmhelper.utils;
 
+import com.fr1kin.asmhelper.exceptions.NullNodeException;
 import com.fr1kin.asmhelper.types.ASMField;
 import com.fr1kin.asmhelper.types.ASMMethod;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+
+import static org.objectweb.asm.Opcodes.*;
 
 /**
  * Created on 1/8/2017 by fr1kin
@@ -32,16 +35,22 @@ public class InsnBuilder {
         return insnList;
     }
 
-    public InsnBuilder push(AbstractInsnNode node) {
-        if(node != null) insnList.insert(node);
+    public InsnBuilder push(AbstractInsnNode node) throws NullNodeException {
+        Verifier.checkIfNullNode(node);
+        insnList.insert(node);
+        return this;
+    }
+
+    public InsnBuilder pop() {
+        push(new InsnNode(POP));
         return this;
     }
 
     public InsnBuilder pushArguments(ASMMethod method) {
         int startingIndex = 0;
         for(Type type : method.getArguments()) {
-            insnList.insert(new VarInsnNode(
-                    type.getOpcode(type.getSort() != Type.ARRAY ? Opcodes.ILOAD : Opcodes.IALOAD),
+            push(new VarInsnNode(
+                    type.getOpcode(type.getSort() != Type.ARRAY ? ILOAD : IALOAD),
                     startingIndex++
             ));
         }
@@ -49,7 +58,7 @@ public class InsnBuilder {
     }
 
     public InsnBuilder pushInvoke(int opcode, ASMMethod member) {
-        insnList.insert(new MethodInsnNode(opcode,
+        push(new MethodInsnNode(opcode,
                 member.getParentClass().getDescriptor(),
                 member.getName(),
                 member.getDescriptor(),
@@ -59,7 +68,7 @@ public class InsnBuilder {
     }
 
     public InsnBuilder pushInvoke(int opcode, ASMField field) {
-        insnList.insert(new FieldInsnNode(opcode,
+        push(new FieldInsnNode(opcode,
                 field.getParentClass().getDescriptor(),
                 field.getName(),
                 field.getDescriptor()

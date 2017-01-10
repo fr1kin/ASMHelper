@@ -1,8 +1,10 @@
 package com.fr1kin.asmhelper.utils;
 
+import com.fr1kin.asmhelper.exceptions.DetourException;
 import com.fr1kin.asmhelper.exceptions.IncompatibleMethodException;
 import com.fr1kin.asmhelper.exceptions.NullNodeException;
 import com.fr1kin.asmhelper.types.ASMMethod;
+import com.google.common.io.BaseEncoding;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 
@@ -14,12 +16,12 @@ import java.util.regex.Pattern;
  * Shoving all the ugly code into one file
  */
 public class Verifier {
-    public static boolean isReturnTypesEqualTo(Type type1, Type type2) {
+    public static boolean isTypesEqualTo(Type type1, Type type2) {
         return type1.equals(type2);
     }
 
     public static boolean isReturnTypesEqualTo(ASMMethod method, Type type2) {
-        return method.getReturnType().equals(type2);
+        return isTypesEqualTo(method.getReturnType(), type2);
     }
 
     protected static boolean containsAllArguments(Type[] args1, Type... args2) {
@@ -39,6 +41,14 @@ public class Verifier {
 
     protected static boolean containsAllArguments(ASMMethod hookMethod, ASMMethod hookedMethod) {
         return containsAllArguments(hookMethod, hookedMethod.getArguments());
+    }
+
+    public static void checkIfArgumentPresent(ASMMethod method, int argPos, Type argType) throws IncompatibleMethodException {
+        boolean throwException = true;
+        try {
+            throwException = !Arrays.asList(method.getArguments()).get(argPos).equals(argType);
+        } catch (IndexOutOfBoundsException e) {}
+        if(throwException) throw new IncompatibleMethodException("argument '%s' missing from method", argType.getClassName());
     }
 
     public static void checkIfNullNode(String name, AbstractInsnNode node) throws NullNodeException {
