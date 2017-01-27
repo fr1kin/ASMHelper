@@ -37,7 +37,7 @@ public class Detours {
      * @param postLocator post node locator
      * @return new detour instance
      */
-    public static Detour newPrePosDetour(ASMMethod targetMethod, ASMMethod hookMethod, ILocator preLocator, ILocator postLocator) {
+    public static Detour newPrePostDetour(ASMMethod targetMethod, ASMMethod hookMethod, ILocator preLocator, ILocator postLocator) {
         return new PrePostDetour(targetMethod, hookMethod, preLocator, postLocator);
     }
 
@@ -57,7 +57,7 @@ public class Detours {
      * @param postLocator post node locator
      * @return new detour instance
      */
-    public static Detour newCancellablePrePosDetour(ASMMethod targetMethod, ASMMethod hookMethod, ILocator preLocator, ILocator postLocator) {
+    public static Detour newCancellablePrePostDetour(ASMMethod targetMethod, ASMMethod hookMethod, ILocator preLocator, ILocator postLocator) {
         return new CancellablePrePostDetour(targetMethod, hookMethod, preLocator, postLocator);
     }
 
