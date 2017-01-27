@@ -11,7 +11,7 @@ public abstract class ASMClassMember implements IASMType {
     private final boolean isStatic;
 
     /**
-     * Sets this classes parent
+     * Sets this test parent
      * @param name name of the derived object
      * @param parent parent class to what this class is representing
      */
@@ -47,10 +47,7 @@ public abstract class ASMClassMember implements IASMType {
         return isStatic;
     }
 
-    @Override
-    public String toString() {
-        return getParentClass().getName() + "::" + getName();
-    }
+    public abstract String toString();
 
     @Override
     public boolean equals(Object obj) {

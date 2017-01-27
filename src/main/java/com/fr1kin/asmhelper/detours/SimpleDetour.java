@@ -42,8 +42,8 @@ public class SimpleDetour extends Detour {
                 methodNode,
                 getLocator().apply(methodNode, getTargetMethod(), getHookMethod()),
                 InsnBuilder.newInstance()
-                        .pushArguments(getTargetMethod())
-                        .pushInvoke(INVOKESTATIC, getHookMethod())
+                        .addArguments(getTargetMethod())
+                        .addInvoke(INVOKESTATIC, getHookMethod())
                         .getInstructions(),
                 getLocator().isInsertedBefore()
         );

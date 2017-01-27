@@ -1,15 +1,10 @@
 package com.fr1kin.asmhelper.utils;
 
-import com.fr1kin.asmhelper.exceptions.DetourException;
 import com.fr1kin.asmhelper.exceptions.IncompatibleMethodException;
-import com.fr1kin.asmhelper.exceptions.NullNodeException;
 import com.fr1kin.asmhelper.types.ASMMethod;
-import com.google.common.io.BaseEncoding;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 /**
  * Created on 1/8/2017 by fr1kin
@@ -24,18 +19,19 @@ public class Verifier {
         return isTypesEqualTo(method.getReturnType(), type2);
     }
 
-    protected static boolean containsAllArguments(Type[] args1, Type... args2) {
-        // match everything inbetween ( )
-        Pattern pattern = Pattern.compile("\\((.*?)\\)");
-        // return type doesnt matter. regexing it right out
-        String args1Desc = pattern.matcher(Type.getMethodDescriptor(Type.VOID_TYPE, args1)).group(1);
-        String args2Desc = pattern.matcher(Type.getMethodDescriptor(Type.VOID_TYPE, args2)).group(1);
-        // args1 (hook method) will have more arguments (atleast it should), so we check if the entirety of args2 is present in args1
-        // because the hooked method should be passing all of its arguments to the hook
-        return args1Desc.contains(args2Desc);
+    private static String extractArguments(String descriptor) {
+        return descriptor.substring(descriptor.indexOf('(') + 1, descriptor.indexOf(')'));
     }
 
-    protected static boolean containsAllArguments(ASMMethod hookMethod, Type... hookedMethodsArgs) {
+    protected static boolean containsAllArguments(Type method1, Type method2) {
+        return extractArguments(method1.getDescriptor()).contains(extractArguments(method2.getDescriptor()));
+    }
+
+    protected static boolean containsAllArguments(Type[] args1, Type[] args2) {
+        return containsAllArguments(Type.getMethodType(Type.VOID_TYPE, args1), Type.getMethodType(Type.VOID_TYPE, args2));
+    }
+
+    protected static boolean containsAllArguments(ASMMethod hookMethod, Type[] hookedMethodsArgs) {
         return containsAllArguments(hookMethod.getArguments(), hookedMethodsArgs);
     }
 
@@ -47,20 +43,19 @@ public class Verifier {
         boolean throwException = true;
         try {
             throwException = !Arrays.asList(method.getArguments()).get(argPos).equals(argType);
-        } catch (IndexOutOfBoundsException e) {}
+        } catch (RuntimeException e) {}
         if(throwException) throw new IncompatibleMethodException("argument '%s' missing from method", argType.getClassName());
     }
 
-    public static void checkIfNullNode(String name, AbstractInsnNode node) throws NullNodeException {
-        if(node == null) throw new NullNodeException("%s is null", name);
-    }
-
-    public static void checkIfNullNode(AbstractInsnNode node) throws NullNodeException {
-        checkIfNullNode("node", node);
-    }
-
     public static void checkHookContainsAllArguments(ASMMethod hookMethod, ASMMethod hookedMethod) throws IncompatibleMethodException {
-        if(!containsAllArguments(hookMethod, hookedMethod))
+        Type[] types = hookedMethod.getArguments();
+        if(!hookedMethod.isStatic()) {
+            Type[] args = types;
+            types = new Type[args.length + 1];
+            types[0] = Type.getObjectType(hookedMethod.getParentClass().getName());
+            System.arraycopy(args, 0, types, 1, args.length);
+        }
+        if(!containsAllArguments(hookMethod, types))
             throw new IncompatibleMethodException("hook does not contain all arguments that the target method has");
     }
 

@@ -1,11 +1,11 @@
 package com.fr1kin.asmhelper.utils;
 
-import com.fr1kin.asmhelper.exceptions.NullNodeException;
 import com.fr1kin.asmhelper.types.ASMField;
 import com.fr1kin.asmhelper.types.ASMMethod;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+
+import java.util.Objects;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -35,21 +35,24 @@ public class InsnBuilder {
         return insnList;
     }
 
-    public InsnBuilder push(AbstractInsnNode node) throws NullNodeException {
-        Verifier.checkIfNullNode(node);
-        insnList.insert(node);
+    public InsnBuilder add(AbstractInsnNode node) throws NullPointerException {
+        Objects.requireNonNull(node, "cannot add null node");
+        insnList.add(node);
         return this;
     }
 
     public InsnBuilder pop() {
-        push(new InsnNode(POP));
+        add(new InsnNode(POP));
         return this;
     }
 
-    public InsnBuilder pushArguments(ASMMethod method) {
+    public InsnBuilder addArguments(ASMMethod method) {
         int startingIndex = 0;
+        if(!method.isStatic()) {
+            add(new VarInsnNode(ALOAD, startingIndex++));
+        }
         for(Type type : method.getArguments()) {
-            push(new VarInsnNode(
+            add(new VarInsnNode(
                     type.getOpcode(type.getSort() != Type.ARRAY ? ILOAD : IALOAD),
                     startingIndex++
             ));
@@ -57,9 +60,9 @@ public class InsnBuilder {
         return this;
     }
 
-    public InsnBuilder pushInvoke(int opcode, ASMMethod member) {
-        push(new MethodInsnNode(opcode,
-                member.getParentClass().getDescriptor(),
+    public InsnBuilder addInvoke(int opcode, ASMMethod member) {
+        add(new MethodInsnNode(opcode,
+                member.getParentClass().getName(),
                 member.getName(),
                 member.getDescriptor(),
                 false
@@ -67,9 +70,9 @@ public class InsnBuilder {
         return this;
     }
 
-    public InsnBuilder pushInvoke(int opcode, ASMField field) {
-        push(new FieldInsnNode(opcode,
-                field.getParentClass().getDescriptor(),
+    public InsnBuilder addInvoke(int opcode, ASMField field) {
+        add(new FieldInsnNode(opcode,
+                field.getParentClass().getName(),
                 field.getName(),
                 field.getDescriptor()
         ));

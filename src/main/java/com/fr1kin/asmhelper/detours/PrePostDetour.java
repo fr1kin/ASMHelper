@@ -32,12 +32,11 @@ public class PrePostDetour extends Detour {
         return postLocator;
     }
 
-    protected InsnList generatePushHookCall(int opcode) {
+    protected InsnBuilder generatePushHookCall(int opcode) {
         return InsnBuilder.newInstance()
-                .push(new InsnNode(opcode))
-                .pushArguments(getTargetMethod())
-                .pushInvoke(INVOKESTATIC, getHookMethod())
-                .getInstructions();
+                .add(new InsnNode(opcode))
+                .addArguments(getTargetMethod())
+                .addInvoke(INVOKESTATIC, getHookMethod());
     }
 
     protected void insert(MethodNode methodNode, InsnList insnListPre, InsnList insnListPost) {
@@ -65,6 +64,6 @@ public class PrePostDetour extends Detour {
 
     @Override
     protected void inject(MethodNode methodNode) throws RuntimeException {
-        insert(methodNode, generatePushHookCall(ICONST_0), generatePushHookCall(ICONST_1));
+        insert(methodNode, generatePushHookCall(ICONST_0).getInstructions(), generatePushHookCall(ICONST_1).getInstructions());
     }
 }

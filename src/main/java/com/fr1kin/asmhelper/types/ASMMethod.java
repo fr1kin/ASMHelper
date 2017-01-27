@@ -16,7 +16,7 @@ public class ASMMethod extends ASMClassMember {
     private final Type descriptor;
 
     /**
-     * Sets this classes parent
+     * Sets this test parent
      *
      * @param name   name of the derived object
      * @param parent parent class to what this class is representing
@@ -61,7 +61,7 @@ public class ASMMethod extends ASMClassMember {
 
     @Override
     public String toString() {
-        return super.toString() + getDescriptor();
+        return getParentClass().getName() + "::" + getName() + getDescriptor();
     }
 
     @Override

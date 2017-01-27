@@ -1,7 +1,6 @@
 package com.fr1kin.asmhelper;
 
 import com.fr1kin.asmhelper.exceptions.FailedToMatchPatternException;
-import com.fr1kin.asmhelper.exceptions.NullNodeException;
 import com.fr1kin.asmhelper.types.ASMClass;
 import com.fr1kin.asmhelper.utils.Verifier;
 import org.objectweb.asm.Opcodes;
@@ -10,6 +9,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -256,7 +256,7 @@ public class ASMHelper {
 
     /**
      * Corrects the class naming so that it is consistent
-     * @param className classes name as string
+     * @param className test name as string
      * @return corrected format for classpath as Type object
      */
     public static Type getInternalClassType(String className) {
@@ -277,9 +277,10 @@ public class ASMHelper {
      * @param methodNode method node
      * @param node target node to inject at
      * @param list instruction list to inject
-     * @throws NullNodeException if the target node is null
+     * @throws NullPointerException if the target node is null
      */
-    public static void insertIntoMethodAt(MethodNode methodNode, AbstractInsnNode node, InsnList list) throws NullNodeException {
+    public static void insertIntoMethodAt(MethodNode methodNode, AbstractInsnNode node, InsnList list) throws NullPointerException {
+        Objects.requireNonNull(node, "target node is null");
         methodNode.instructions.insert(node, list);
     }
 
@@ -288,9 +289,10 @@ public class ASMHelper {
      * @param methodNode method node
      * @param node target node to inject at
      * @param list instruction list to inject
-     * @throws NullNodeException if the target node is null
+     * @throws NullPointerException if the target node is null
      */
-    public static void insertIntoMethodBefore(MethodNode methodNode, AbstractInsnNode node, InsnList list) throws NullNodeException {
+    public static void insertIntoMethodBefore(MethodNode methodNode, AbstractInsnNode node, InsnList list) throws NullPointerException {
+        Objects.requireNonNull(node, "target node is null");
         methodNode.instructions.insertBefore(node, list);
     }
 
@@ -300,10 +302,9 @@ public class ASMHelper {
      * @param node target node to inject at
      * @param list instruction list to inject
      * @param before if instruction should be injected before the targeted point
-     * @throws NullNodeException if the target node is null
+     * @throws NullPointerException if the target node is null
      */
-    public static void insertIntoMethod(MethodNode methodNode, AbstractInsnNode node, InsnList list, boolean before) throws NullNodeException {
-        Verifier.checkIfNullNode(node);
+    public static void insertIntoMethod(MethodNode methodNode, AbstractInsnNode node, InsnList list, boolean before) throws NullPointerException {
         if(before) insertIntoMethodBefore(methodNode, node, list);
         else insertIntoMethodAt(methodNode, node, list);
     }

@@ -14,6 +14,22 @@ import java.util.Map;
  * Created on 1/4/2017 by fr1kin
  */
 public class ASMClass implements IASMType {
+    protected static final Map<Type, ASMClass> ASM_CLASS_CACHE = Maps.newConcurrentMap();
+
+    public static ASMClass getOrCreateClass(Type type) {
+        return ASM_CLASS_CACHE.computeIfAbsent(type, key -> new ASMClass(type));
+    }
+
+    public static ASMClass getOrCreateClass(String classDescriptor) {
+        return getOrCreateClass(ASMHelper.getInternalClassType(classDescriptor));
+    }
+
+    public static ASMClass getOrCreateClass(ClassNode classNode) {
+        return getOrCreateClass(classNode.signature);
+    }
+
+
+
     private final Type descriptor;
 
     /**
@@ -26,9 +42,17 @@ public class ASMClass implements IASMType {
 
     /**
      * Gets the class name
-     * @return class name with the regular class name syntax
+     * @return class name with the internal class name syntax
      */
     public String getName() {
+        return descriptor.getInternalName();
+    }
+
+    /**
+     * Gets the class name
+     * @return class name with regular name syntax
+     */
+    public String getClassName() {
         return descriptor.getClassName();
     }
 
@@ -44,12 +68,23 @@ public class ASMClass implements IASMType {
      * Create new instance of ASMMethod
      * @param name name of method
      * @param isStatic if method is static
+     * @param methodType return type and arguments
+     * @return new instance of ASMMethod
+     */
+    public ASMMethod childMethod(String name, boolean isStatic, Type methodType) {
+        return new ASMMethod(name, this, isStatic, methodType);
+    }
+
+    /**
+     * Create new instance of ASMMethod
+     * @param name name of method
+     * @param isStatic if method is static
      * @param returnType methods return type
      * @param argumentTypes methods arguments
      * @return new instance of ASMMethod
      */
     public ASMMethod childMethod(String name, boolean isStatic, Type returnType, Type... argumentTypes) {
-        return new ASMMethod(name, this, isStatic, Type.getMethodType(returnType, argumentTypes));
+        return childMethod(name, isStatic, Type.getMethodType(returnType, argumentTypes));
     }
 
     /**
@@ -60,7 +95,7 @@ public class ASMClass implements IASMType {
      * @return new instance of ASMMethod
      */
     public ASMMethod childMethod(String name, boolean isStatic, String descriptor) {
-        return new ASMMethod(name, this, isStatic, Type.getMethodType(descriptor));
+        return childMethod(name, isStatic, Type.getMethodType(descriptor));
     }
 
     /**

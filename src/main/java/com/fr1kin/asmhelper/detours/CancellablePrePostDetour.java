@@ -34,12 +34,12 @@ public class CancellablePrePostDetour extends PrePostDetour {
 
         insert(
                 methodNode,
-                InsnBuilder.newInstance(generatePushHookCall(ICONST_0))
-                        .push(new JumpInsnNode(IFEQ, jumpTo))
+                generatePushHookCall(ICONST_0)
+                        .add(new JumpInsnNode(IFNE, jumpTo))
                         .getInstructions(),
-                InsnBuilder.newInstance(generatePushHookCall(ICONST_1))
+                generatePushHookCall(ICONST_1)
                         .pop()
-                        .push(jumpTo)
+                        .add(jumpTo)
                         .getInstructions()
         );
     }

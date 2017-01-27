@@ -10,7 +10,7 @@ public class ASMField extends ASMClassMember {
     private final Type type;
 
     /**
-     * Sets this classes parent
+     * Sets this test parent
      * @param name name of the field
      * @param parent parent class to what this class is representing
      */
@@ -37,7 +37,7 @@ public class ASMField extends ASMClassMember {
 
     @Override
     public String toString() {
-        return getDescriptor() + " " + super.toString();
+        return getParentClass().getName() + "." + getName() + ":" + getDescriptor();
     }
 
     @Override

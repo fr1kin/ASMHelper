@@ -36,7 +36,7 @@ public class Locators {
     public static AbstractInsnNode returnNode(MethodNode methodNode, ASMMethod hookedMethod, ASMMethod hookMethod) {
         // gets the proper opcode for the return type
         final int returnTypeOpcode = hookedMethod.getReturnType().getOpcode(Opcodes.IRETURN);
-        return ASMHelper.parsePreviousNode(methodNode.instructions.getFirst(), n -> n.getOpcode() == returnTypeOpcode);
+        return ASMHelper.parsePreviousNode(methodNode.instructions.getLast(), n -> n.getOpcode() == returnTypeOpcode);
     }
 
     /**
@@ -49,7 +49,7 @@ public class Locators {
      */
     @InsertedBefore(false)
     public static AbstractInsnNode firstLabelNode(MethodNode methodNode, ASMMethod hookedMethod, ASMMethod hookMethod) {
-        return ASMHelper.parseNextNode(methodNode.instructions.getLast(), n -> n instanceof LabelNode);
+        return ASMHelper.parseNextNode(methodNode.instructions.getFirst(), n -> n instanceof LabelNode);
     }
 
     /**
